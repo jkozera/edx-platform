@@ -62,7 +62,7 @@
             "logger": "js/src/logger",
             "backbone": "common/js/vendor/backbone",
             "backbone-super": "js/vendor/backbone-super",
-            "backbone.paginator": "js/vendor/backbone.paginator.min",
+            "backbone.paginator": "common/js/vendor/backbone.paginator",
             "underscore": "common/js/vendor/underscore",
             "underscore.string": "common/js/vendor/underscore.string",
             // The jquery-migrate library was added in upgrading from
@@ -85,6 +85,7 @@
             "afontgarde": "edx-pattern-library/js/afontgarde",
             "edxicons": "edx-pattern-library/js/edx-icons",
             "draggabilly": "js/vendor/draggabilly",
+            "paging-collection": "edx-ui-toolkit/js/pagination/paging-collection",
 
             // Files needed by OVA
             "annotator": "js/vendor/ova/annotator-full",
@@ -144,10 +145,13 @@
             },
             "backbone.paginator": {
                 deps: ["backbone"],
-                exports: "Backbone.Paginator"
+                exports: "Backbone.PageableCollection"
             },
             "backbone-super": {
                 deps: ["backbone"]
+            },
+            "paging-collection": {
+                deps: ["jquery", "underscore", "backbone.paginator"]
             },
             "string_utils": {
                 deps: ["underscore"],
