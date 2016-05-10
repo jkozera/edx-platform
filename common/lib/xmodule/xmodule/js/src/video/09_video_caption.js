@@ -693,6 +693,7 @@
                         
                         // update the transcript lang attribute
                         self.subtitlesMenuEl.attr('lang', langCode);
+                        self.closeLanguageMenu(e);
                     }
                 });
             },
@@ -715,7 +716,7 @@
                             'data-index': index,
                             'data-start': start[index],
                             'tabindex': 0
-                        }).html(text);
+                        }).text(text);
 
                         return liEl[0];
                     };
