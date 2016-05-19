@@ -5,6 +5,8 @@ from django.core.urlresolvers import reverse
 from xmodule.modulestore.django import ModuleI18nService
 from shoppingcart.models import OrderItem
 
+from openedx.core.djangoapps.content.course_overviews.models import CourseOverview
+
 
 def order_history(user, **kwargs):
     """
@@ -32,6 +34,8 @@ def order_history(user, **kwargs):
                     order_history_list.append({
                         'order_id': order_item.order.id,
                         'receipt_url': reverse('shoppingcart.views.show_receipt', kwargs={'ordernum': order_item.order.id}),
+                        'price': unicode(order_item.list_price),
+                        'title': CourseOverview.get_from_id(order_item.course_id).display_name,
                         'order_date': ModuleI18nService().strftime(order_item.order.purchase_time, 'SHORT_DATE')
                     })
     return order_history_list
