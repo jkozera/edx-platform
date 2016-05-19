@@ -117,3 +117,28 @@ class mock_order_endpoint(mock_ecommerce_api_endpoint):  # pylint: disable=inval
 
     def get_uri(self):
         return TEST_API_URL + '/orders/{}/'.format(self.order_number)
+
+
+class mock_get_orders(mock_ecommerce_api_endpoint):  # pylint: disable=invalid-name
+    """ Mocks calls to E-Commerce API client refund creation method. """
+
+    default_response = {
+        'results': [
+            {
+                'number': 'EDX-10001',
+                'date_placed': '2016-04-21T10:26:36Z',
+                'status': 'Complete',
+                'total_excl_tax': '10.00',
+                'basket': 1,
+                'lines': [
+                    {
+                        'title': 'Seat in test course with verified certificate'
+                    }
+                ]
+            }
+        ]
+    }
+    method = httpretty.GET
+
+    def get_uri(self):
+        return TEST_API_URL + '/orders/'

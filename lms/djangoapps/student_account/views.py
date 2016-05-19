@@ -3,10 +3,12 @@
 import logging
 import json
 import urlparse
+import pytz
 
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.core.cache import cache
 from django.http import (
     HttpResponse, HttpResponseBadRequest, HttpResponseForbidden
 )
@@ -17,14 +19,18 @@ from django.core.urlresolvers import reverse, resolve
 from django.utils.translation import ugettext as _
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_http_methods
+from datetime import datetime
+from xmodule.modulestore.django import ModuleI18nService
 
 from lang_pref.api import released_languages, all_languages
 from edxmako.shortcuts import render_to_response
 
+from commerce.models import CommerceConfiguration
 from external_auth.login_and_register import (
     login as external_auth_login,
     register as external_auth_register
 )
+from shoppingcart.api import order_history
 from student.models import UserProfile
 from student.views import (
     signin_user as old_login_view,
@@ -37,12 +43,15 @@ from third_party_auth.decorators import xframe_allow_whitelisted
 from util.bad_request_rate_limiter import BadRequestRateLimiter
 
 from openedx.core.djangoapps.programs.models import ProgramsApiConfig
+from microsite_configuration import microsite
+from openedx.core.djangoapps.commerce.utils import ecommerce_api_client
 from openedx.core.djangoapps.theming.helpers import is_request_in_themed_site, get_value as get_themed_value
 from openedx.core.djangoapps.user_api.accounts.api import request_password_change
 from openedx.core.djangoapps.user_api.errors import UserNotFound
 
 
 AUDIT_LOG = logging.getLogger("audit")
+log = logging.getLogger(__name__)
 
 
 @require_http_methods(['GET'])
@@ -302,6 +311,60 @@ def _external_auth_intercept(request, mode):
         return external_auth_register(request)
 
 
+def _get_commerce_order_detail(user):
+    """ Retrieve order details for the user from Ecommerce. """
+    order_details = []
+    try:
+        commerce_order_details = ecommerce_api_client(user).orders.get()
+    except Exception:  # pylint: disable=broad-except
+        log.exception('Failed to retrieve data from the Commerce API.')
+        return order_details, True
+
+    for order in commerce_order_details['results']:
+        if order['status'] == 'Complete':
+            order_data = {
+                'number': order['number'],
+                'price': order['total_excl_tax'],
+                'title': order['lines'][0]['title'],
+                'order_date': ModuleI18nService().strftime(
+                    datetime.strptime(order['date_placed'], "%Y-%m-%dT%H:%M:%SZ").replace(tzinfo=pytz.UTC), 'SHORT_DATE'
+                ),
+                'receipt_url': '/commerce/checkout/receipt/?basket_id=' + str(order['basket'])
+            }
+            order_details.append(order_data)
+
+    return order_details, False
+
+
+def _get_order_details(user):
+    """ Retrieve order details for the user. """
+    cache_key = CommerceConfiguration.CACHE_KEY + '.' + user.username
+    cached = cache.get(cache_key)
+    if cached:
+        return cached
+
+    order_details, error = _get_commerce_order_detail(user)
+    if error:
+        return order_details
+    # for microsites, we want to filter and only show orders for courses within
+    # the microsites 'ORG'
+    course_org_filter = get_themed_value('course_org_filter')
+
+    # Let's filter out any courses in an "org" that has been declared to be
+    # in a Microsite
+    org_filter_out_set = microsite.get_all_orgs()
+
+    lms_order_details = order_history(user, course_org_filter=course_org_filter, org_filter_out_set=org_filter_out_set)
+    for order in lms_order_details:
+        order_number = order.pop('order_id')
+        order['number'] = order_number
+        order_details.append(order)
+
+    cache.set(cache_key, order_details, CommerceConfiguration.CACHE_TTL)
+
+    return order_details
+
+
 @login_required
 @require_http_methods(['GET'])
 def account_settings(request):
@@ -396,6 +459,7 @@ def account_settings_context(request):
         'user_preferences_api_url': reverse('preferences_api', kwargs={'username': user.username}),
         'disable_courseware_js': True,
         'show_program_listing': ProgramsApiConfig.current().show_program_listing,
+        'order_history': _get_order_details(user),
     }
 
     if third_party_auth.is_enabled():

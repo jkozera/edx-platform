@@ -17,15 +17,18 @@ from django.contrib.messages.middleware import MessageMiddleware
 from django.test import TestCase
 from django.test.utils import override_settings
 from django.http import HttpRequest
+from edx_rest_api_client import exceptions
 
 from course_modes.models import CourseMode
+from commerce.tests import TEST_API_URL, TEST_API_SIGNING_KEY
+from commerce.tests.mocks import mock_get_orders
 from openedx.core.djangoapps.programs.tests.mixins import ProgramsApiConfigMixin
 from openedx.core.djangoapps.user_api.accounts.api import activate_account, create_account
 from openedx.core.djangoapps.user_api.accounts import EMAIL_MAX_LENGTH
 from openedx.core.djangolib.js_utils import dump_js_escaped_json
 from openedx.core.djangolib.testing.utils import CacheIsolationTestCase
 from student.tests.factories import UserFactory
-from student_account.views import account_settings_context
+from student_account.views import account_settings_context, _get_commerce_order_detail
 from third_party_auth.tests.testutil import simulate_running_pipeline, ThirdPartyAuthTestMixin
 from util.testing import UrlResetMixin
 from xmodule.modulestore.tests.django_utils import ModuleStoreTestCase
@@ -443,6 +446,7 @@ class StudentAccountLoginAndRegistrationTest(ThirdPartyAuthTestMixin, UrlResetMi
         })
 
 
+@override_settings(ECOMMERCE_API_URL=TEST_API_URL, ECOMMERCE_API_SIGNING_KEY=TEST_API_SIGNING_KEY)
 class AccountSettingsViewTest(ThirdPartyAuthTestMixin, TestCase, ProgramsApiConfigMixin):
     """ Tests for the account settings view. """
 
@@ -526,6 +530,52 @@ class AccountSettingsViewTest(ThirdPartyAuthTestMixin, TestCase, ProgramsApiConf
         response = self.client.get(path=self.view_path)
 
         self.assertContains(response, '<li class="item nav-global-01">')
+
+    def test_commerce_order_detail(self):
+        with mock_get_orders():
+            order_detail, error = _get_commerce_order_detail(self.user)
+
+        expected = [
+            {
+                'number': 'EDX-10001',
+                'price': '10.00',
+                'title': 'Seat in test course with verified certificate',
+                'order_date': 'Apr 21, 2016',
+                'receipt_url': '/commerce/checkout/receipt/?basket_id=1'
+            }
+        ]
+        self.assertEqual(order_detail, expected)
+        self.assertEqual(error, False)
+
+    def test_commerce_order_detail_exception(self):
+        with mock_get_orders(exception=exceptions.HttpNotFoundError):
+            order_detail, error = _get_commerce_order_detail(self.user)
+
+        self.assertEqual(order_detail, [])
+        self.assertEqual(error, True)
+
+    def test_incomplete_order_detail(self):
+        response = {
+            'results': [
+                {
+                    'number': 'EDX-10001',
+                    'date_placed': '2016-04-21T10:26:36Z',
+                    'status': 'incomplete',
+                    'total_excl_tax': '10.00',
+                    'basket': 1,
+                    'lines': [
+                        {
+                            'title': 'Seat in test course with verified certificate'
+                        }
+                    ]
+                }
+            ]
+        }
+        with mock_get_orders(response=response):
+            order_detail, error = _get_commerce_order_detail(self.user)
+
+        self.assertEqual(order_detail, [])
+        self.assertEqual(error, False)
 
 
 @override_settings(SITE_NAME=settings.MICROSITE_LOGISTRATION_HOSTNAME)
