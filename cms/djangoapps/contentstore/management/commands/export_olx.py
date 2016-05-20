@@ -1,7 +1,17 @@
 """
 A Django command that exports a course to a tar.gz file.
 
-If <filename> is '-', it pipes the file to stdout
+If <filename> is '-', it pipes the file to stdout.
+
+This is used by Analytics research exports to provide researchers
+with course content.
+
+At present, it differs from Studio exports in several ways:
+
+* It does not include static content.
+* The top-level directory in the resulting tarball is a "safe"
+  (i.e. ascii) version of the course_key, rather than the word "course".
+* It only supports the export of courses.  It does not export libraries.
 
 """
 
