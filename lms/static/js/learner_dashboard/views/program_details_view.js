@@ -5,6 +5,9 @@
             'jquery',
             'underscore',
             'gettext',
+            'js/learner_dashboard/views/collection_list_view',
+            'js/learner_dashboard/views/course_card_view',
+            'js/learner_dashboard/collections/course_card_collection',
             'text!../../../templates/learner_dashboard/program_details_view.underscore'
            ],
          function(
@@ -12,6 +15,9 @@
              $,
              _,
              gettext,
+             CollectionListView,
+             CourseCardView,
+             CourseCardCollection,
              pageTpl
          ) {
             return Backbone.View.extend({
@@ -20,7 +26,7 @@
                 tpl: _.template(pageTpl),
 
                 initialize: function(data) {
-                    this.context = data.context;
+                    this.context = data;
                     this.render();
                 },
 
@@ -31,6 +37,16 @@
 
                 postRender: function() {
                     // Add subviews
+                    new CollectionListView({
+                        el: '.js-course-list',
+                        childView: CourseCardView,
+                        collection: new CourseCardCollection(this.context.course_codes),
+                        context: this.context,
+                        titleContext: {
+                            el: 'h2',
+                            title: 'Course List'
+                        }
+                    }).render();
                 }
             });
         }

@@ -1,7 +1,7 @@
 <header class="program-header">
     <div>
-        <h2 class="hd-2">Program Title</h2>
-        <p>Program Subtitle</p>
+        <h2 class="hd-2"><%- gettext(name) %></h2>
+        <p><%- gettext(subtitle) %></p>
     </div>
 </header>
 <div class="js-program-progress-view"></div>
