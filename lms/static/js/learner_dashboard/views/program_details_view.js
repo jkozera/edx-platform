@@ -5,32 +5,29 @@
             'jquery',
             'underscore',
             'gettext',
+            'js/learner_dashboard/views/program_header_view',
             'text!../../../templates/learner_dashboard/program_details_view.underscore'
            ],
-         function(
-             Backbone,
-             $,
-             _,
-             gettext,
-             pageTpl
-         ) {
+         function(Backbone, $, _, gettext, HeaderView, pageTpl) {
             return Backbone.View.extend({
                 el: '.js-program-details-wrapper',
 
                 tpl: _.template(pageTpl),
 
-                initialize: function(data) {
-                    this.context = data.context;
+                initialize: function(options) {
+                    this.programModel = new Backbone.Model(options);
                     this.render();
                 },
 
                 render: function() {
-                    this.$el.html(this.tpl(this.context));
+                    this.$el.html(this.tpl());
                     this.postRender();
                 },
 
                 postRender: function() {
-                    // Add subviews
+                    this.headerView = new HeaderView({
+                        model: this.programModel
+                    });
                 }
             });
         }
