@@ -193,6 +193,54 @@
                     }
                 }
 
+                .u-field-order {
+                    font-size: em(16);
+                    color: $gray;
+                    width: 100%;
+                    padding-top: $baseline;
+                    padding-bottom: $baseline;
+                    line-height: normal;
+
+                    span {
+                        margin-left: 10px;
+                    }
+
+                    .u-field-order-title {
+                        width: 25%;
+                        float: left;
+                        margin-left: 30px;
+                        font-size: em(20);
+                    }
+
+                    .u-field-order-value {
+                        width: 10%;
+                        float: left;
+                    }
+
+                    .u-field-order-date {
+                        width: 15%;
+                        float: left;
+                    }
+
+                    .u-field-order-link {
+                        width: 10%;
+                        right: ($baseline*2);
+                        position: absolute;
+
+                        .u-field-link {
+                            @extend %ui-clear-button;
+
+                            // set styles
+                            @extend %btn-pl-default-base;
+                            @include font-size(14);
+                            border: 1px solid $blue;
+                            color: $blue;
+                            line-height: normal;
+                            padding: 10px;
+                        }
+                    }
+                }
+
                 .social-field-linked {
                     background: $m-gray-l4;
                     box-shadow: 0 1px 2px 1px $shadow-l2;
@@ -264,6 +312,30 @@
                 &:last-child {
                     border-bottom: none;
                     margin-bottom: ($baseline*2);
+                }
+            }
+
+            .u-field-orderHistory {
+                border-bottom: none;
+                border: 1px solid $m-gray-l4;
+                margin: $baseline;
+
+                &:last-child {
+                    border-bottom: 1px solid $m-gray-l4;
+                }
+            }
+
+            .u-field-order-invoice-id {
+                border: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+
+                .u-field-order-title {
+                    font-size: em(16);
+                }
+
+                .u-field-order {
+                    font-weight: $font-semibold;
                 }
             }
 
