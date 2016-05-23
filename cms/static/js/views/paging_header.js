@@ -29,8 +29,8 @@ define([
                     lastPage = collection.getTotalPages(),
                     messageHtml = this.messageHtml(),
                     isNextDisabled = lastPage === 0 || currentPage === lastPage;
-
-                this.$el.html(_.template(pagingHeaderTemplate)({ messageHtml: messageHtml, HtmlUtils: HtmlUtils}));
+                
+                HtmlUtils.setHtml(this.$el, HtmlUtils.template(pagingHeaderTemplate)({messageHtml: messageHtml}));
                 this.$('.previous-page-link')
                     .toggleClass('is-disabled', currentPage === 1)
                     .attr('aria-disabled', currentPage === 1);

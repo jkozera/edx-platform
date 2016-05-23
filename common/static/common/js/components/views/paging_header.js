@@ -4,8 +4,10 @@
         'backbone',
         'underscore',
         'gettext',
+        'edx-ui-toolkit/js/utils/html-utils',
+        'edx-ui-toolkit/js/utils/string-utils',
         'text!common/templates/components/paging-header.underscore'
-    ], function (Backbone, _, gettext, headerTemplate) {
+    ], function (Backbone, _, gettext, HtmlUtils, StringUtils, headerTemplate) {
         var PagingHeader = Backbone.View.extend({
             initialize: function (options) {
                 this.srInfo = options.srInfo;
@@ -24,22 +26,34 @@
                     start = (this.collection.getPageNumber() - 1) * this.collection.getPageSize(),
                     end = start + this.collection.size(),
                     numItems = this.collection.getTotalRecords(),
-                    context = {firstIndex: Math.min(start + 1, end), lastIndex: end, numItems: numItems};
+                    context = {
+                        firstIndex: Math.min(start + 1, end),
+                        lastIndex: end,
+                        numItems: numItems
+                    };
+
                 if (end <= 1) {
-                    message = interpolate(gettext('Showing %(firstIndex)s out of %(numItems)s total'), context, true);
+                    message = StringUtils.interpolate(
+                        gettext('Showing {firstIndex} out of {numItems} total'),
+                        context
+                    );
                 } else {
-                    message = interpolate(
-                        gettext('Showing %(firstIndex)s-%(lastIndex)s out of %(numItems)s total'),
-                        context, true
+                    message = StringUtils.interpolate(
+                        gettext('Showing {firstIndex}-{lastIndex} out of {numItems} total'),
+                        context
                     );
                 }
-                this.$el.html(_.template(headerTemplate)({
-                    message: message,
-                    srInfo: this.srInfo,
-                    sortableFields: this.collection.sortableFields,
-                    sortOrder: this.sortOrder,
-                    showSortControls: this.showSortControls
-                }));
+                
+                HtmlUtils.setHtml(
+                    this.$el,
+                    HtmlUtils.template(headerTemplate)({
+                        message: message,
+                        srInfo: this.srInfo,
+                        sortableFields: this.collection.sortableFields,
+                        sortOrder: this.sortOrder,
+                        showSortControls: this.showSortControls
+                    })
+                );
                 return this;
             },
 

@@ -1,9 +1,9 @@
 ;(function (define, undefined) {
 'use strict';
 define([
-    'jquery', 'underscore', 'backbone', 'gettext', 'js/edxnotes/utils/logger',
+    'jquery', 'underscore', 'backbone', 'gettext', 'edx-ui-toolkit/js/utils/html-utils', 'js/edxnotes/utils/logger',
     'js/edxnotes/collections/notes'
-], function ($, _, Backbone, gettext, NotesLogger, NotesCollection) {
+], function ($, _, Backbone, gettext, HtmlUtils, NotesLogger, NotesCollection) {
     var SearchBoxView = Backbone.View.extend({
         events: {
             'submit': 'submitHandler'
@@ -11,12 +11,12 @@ define([
 
         errorMessage: gettext('An error has occurred. Make sure that you are connected to the Internet, and then try refreshing the page.'),
         emptyFieldMessage: (function () {
-            var message = gettext('Please enter a term in the %(anchor_start)s search field%(anchor_end)s.');
-            return interpolate(message, {
-                'anchor_start': '<a href="#search-notes-input">',
-                'anchor_end': '</a>'
-            }, true);
-        } ()),
+            var message = gettext('Please enter a term in the {anchorStart} search field{anchorEnd}.');
+            return HtmlUtils.interpolateHtml(message, {
+                anchorStart: HtmlUtils.HTML('<a href="#search-notes-input">'),
+                anchorEnd: HtmlUtils.HTML('</a>')
+            }).text;
+        }()),
 
         initialize: function (options) {
             _.bindAll(this, 'onSuccess', 'onError', 'onComplete');

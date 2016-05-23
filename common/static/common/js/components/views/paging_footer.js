@@ -1,7 +1,13 @@
 ;(function (define) {
     'use strict';
-    define(["underscore", "gettext", "backbone", "text!common/templates/components/paging-footer.underscore"],
-        function(_, gettext, Backbone, paging_footer_template) {
+    define([
+            "underscore",
+            "gettext",
+            "backbone",
+            "edx-ui-toolkit/js/utils/html-utils",
+            "text!common/templates/components/paging-footer.underscore"
+        ],
+        function(_, gettext, Backbone, HtmlUtils, paging_footer_template) {
 
             var PagingFooter = Backbone.View.extend({
                 events : {
@@ -29,11 +35,15 @@
                             this.$el.removeClass('hidden');
                         }
                     }
-                    this.$el.html(_.template(paging_footer_template)({
-                        current_page: this.collection.getPageNumber(),
-                        total_pages: this.collection.getTotalPages(),
-                        paginationLabel: this.paginationLabel
-                    }));
+
+                    HtmlUtils.setHtml(
+                        this.$el,
+                        HtmlUtils.template(paging_footer_template)({
+                            current_page: this.collection.getPageNumber(),
+                            total_pages: this.collection.getTotalPages(),
+                            paginationLabel: this.paginationLabel
+                        })
+                    );
                     this.$(".previous-page-link").toggleClass("is-disabled", onFirstPage).attr('aria-disabled', onFirstPage);
                     this.$(".next-page-link").toggleClass("is-disabled", onLastPage).attr('aria-disabled', onLastPage);
                     return this;
