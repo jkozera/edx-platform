@@ -216,10 +216,7 @@ create_email_content_table = ($table_emails, $table_emails_inner, email_data) ->
     $table_placeholder = $ '<div/>', class: 'slickgrid'
     $table_emails_inner.append($table_placeholder)
     grid = new Slick.Grid($table_placeholder, table_data, columns, options)
-    edx.HtmlUtils.append(
-      $table_emails,
-      edx.HtmlUtils.HTML($('<br/>'))
-    )
+    $table_emails.append($('<br/>'))
 
 # Creates the modal windows linked to each email in the email history
 # Displayed when instructor clicks an email's subject in the content history table
@@ -240,10 +237,7 @@ create_email_message_views = ($messages_wrapper, emails) ->
     $email_header.append($('<input>', type: "button", name: "copy-email-body-text", value: gettext("Copy Email To Editor"), id: "copy_email_" + email_id))
 
     $close_button = $ '<a>', href: '#', class: "close-modal"
-    edx.HtmlUtils.append(
-      $close_button,
-      $('<i>', class: 'icon fa fa-times')
-    )
+    $close_button.append($('<i>', class: 'icon fa fa-times'))
     $email_header.append($close_button)
 
     # HTML escape things
@@ -267,24 +261,19 @@ create_email_message_views = ($messages_wrapper, emails) ->
     $email_header.append($sent_to)
     $email_wrapper.append($email_header)
 
-    edx.HtmlUtils.append(
-      $email_wrapper,
-      $('<hr>')
-    )
+    $email_wrapper.append($('<hr>'))
 
     # Last, add email content section
     $email_content = $ '<div>', class: 'email-content-message'
-    edx.HtmlUtils.append(
-      $email_content,
-      edx.HtmlUtils.setHtml(
-        $('<h2>', class: "message-bold"),
-        edx.HtmlUtils.joinHtml(
-          edx.HtmlUtils.HTML('<em>'),
-          gettext("Message:"),
-          edx.HtmlUtils.HTML('</em>'),
-        )
+    $email_content_header = edx.HtmlUtils.setHtml(
+      $('<h2>', class: "message-bold"),
+      edx.HtmlUtils.joinHtml(
+        edx.HtmlUtils.HTML('<em>'),
+        gettext("Message:"),
+        edx.HtmlUtils.HTML('</em>'),
       )
     )
+    $email_content.append($email_content_header)
     $message = edx.HtmlUtils.setHtml(
       $('<div>'),
       edx.HtmlUtils.HTML(email_info.email['html_message'])

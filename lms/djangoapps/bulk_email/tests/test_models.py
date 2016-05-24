@@ -27,7 +27,7 @@ class CourseEmailTest(TestCase):
         html_message = "<html>dummy message</html>"
         email = CourseEmail.create(course_id, sender, [to_option], subject, html_message)
         self.assertEquals(email.course_id, course_id)
-        self.assertEquals(email.targets.all()[0].target_type, SEND_TO_STAFF)
+        self.assertIn(SEND_TO_STAFF, [target.target_type for target in email.targets.all()])
         self.assertEquals(email.subject, subject)
         self.assertEquals(email.html_message, html_message)
         self.assertEquals(email.sender, sender)

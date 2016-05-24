@@ -3,7 +3,7 @@ Test for LMS instructor background task queue management
 """
 from mock import patch, Mock, MagicMock
 from nose.plugins.attrib import attr
-from bulk_email.models import CourseEmail, SEND_TO_ALL
+from bulk_email.models import CourseEmail, SEND_TO_MYSELF
 from courseware.tests.factories import UserFactory
 from xmodule.modulestore.exceptions import ItemNotFoundError
 
@@ -191,7 +191,7 @@ class InstructorTaskCourseSubmitTest(TestReportMixin, InstructorTaskCourseTestCa
         course_email = CourseEmail.create(
             self.course.id,
             self.instructor,
-            [SEND_TO_ALL],
+            [SEND_TO_MYSELF],
             "Test Subject",
             "<p>This is a test message</p>"
         )

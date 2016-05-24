@@ -55,9 +55,8 @@ SEND_TO_MYSELF = 'myself'
 SEND_TO_STAFF = 'staff'
 SEND_TO_LEARNERS = 'learners'
 SEND_TO_COHORT = 'cohort'
-SEND_TO_ALL = 'all'
-EMAIL_TARGETS = [SEND_TO_MYSELF, SEND_TO_STAFF, SEND_TO_LEARNERS, SEND_TO_COHORT, SEND_TO_ALL]
-EMAIL_TARGET_DESCRIPTIONS = ['Myself', 'Staff and instructors', 'All students', 'Specific cohort', 'All']
+EMAIL_TARGETS = [SEND_TO_MYSELF, SEND_TO_STAFF, SEND_TO_LEARNERS, SEND_TO_COHORT]
+EMAIL_TARGET_DESCRIPTIONS = ['Myself', 'Staff and instructors', 'All students', 'Specific cohort']
 EMAIL_TARGET_CHOICES = zip(EMAIL_TARGETS, EMAIL_TARGET_DESCRIPTIONS)
 
 
@@ -95,18 +94,9 @@ class Target(models.Model):
         elif self.target_type == SEND_TO_STAFF:
             return use_read_replica_if_available(staff_instructor_qset)
         elif self.target_type == SEND_TO_LEARNERS:
-            if staff_instructor_qset.count() <= 0:
-                return use_read_replica_if_available(enrollment_qset)
             return use_read_replica_if_available(enrollment_qset.exclude(id__in=staff_instructor_qset))
         elif self.target_type == SEND_TO_COHORT:
             return User.objects.none()  # TODO: cohorts aren't hooked up, put that logic here
-        elif self.target_type == SEND_TO_ALL:
-            # Return both learners and staff
-            recipient_qsets = (
-                use_read_replica_if_available(staff_instructor_qset) |
-                use_read_replica_if_available(enrollment_qset)
-            )
-            return recipient_qsets
         else:
             raise ValueError("Unrecognized target type {}".format(self.target_type))
 

@@ -14,7 +14,7 @@ from mock import patch, Mock
 from nose.plugins.attrib import attr
 from smtplib import SMTPDataError, SMTPServerDisconnected, SMTPConnectError
 
-from bulk_email.models import CourseEmail, SEND_TO_ALL, BulkEmailFlag
+from bulk_email.models import CourseEmail, SEND_TO_MYSELF, BulkEmailFlag
 from bulk_email.tasks import perform_delegate_email_batches, send_course_email
 from instructor_task.models import InstructorTask
 from instructor_task.subtasks import (
@@ -103,13 +103,14 @@ class TestEmailErrors(ModuleStoreTestCase):
         # have every fourth email fail due to blacklisting:
         get_conn.return_value.send_messages.side_effect = cycle([SMTPDataError(554, "Email address is blacklisted"),
                                                                  None, None, None])
-        students = [UserFactory() for _ in xrange(settings.BULK_EMAIL_EMAILS_PER_TASK)]
+        # Don't forget to account for the "myself" instructor user
+        students = [UserFactory() for _ in xrange(settings.BULK_EMAIL_EMAILS_PER_TASK - 1)]
         for student in students:
             CourseEnrollmentFactory.create(user=student, course_id=self.course.id)
 
         test_email = {
             'action': 'Send email',
-            'send_to': '["all"]',
+            'send_to': '["myself", "staff", "learners"]',
             'subject': 'test subject for all',
             'message': 'test message for all'
         }
@@ -219,7 +220,7 @@ class TestEmailErrors(ModuleStoreTestCase):
         email = CourseEmail.create(
             self.course.id,
             self.instructor,
-            [SEND_TO_ALL],
+            [SEND_TO_MYSELF],
             "re: subject",
             "dummy body goes here"
         )
@@ -235,7 +236,7 @@ class TestEmailErrors(ModuleStoreTestCase):
         email = CourseEmail.create(
             SlashSeparatedCourseKey("bogus", "course", "id"),
             self.instructor,
-            [SEND_TO_ALL],
+            [SEND_TO_MYSELF],
             "re: subject",
             "dummy body goes here"
         )
