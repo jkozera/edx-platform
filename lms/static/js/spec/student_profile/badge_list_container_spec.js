@@ -14,7 +14,7 @@ define([
 
             var view, requests;
 
-            var createView = function (requests, badge_list_object) {
+            var createView = function (requests, pageNum, badge_list_object) {
                 var BadgeCollection = PagingCollection.extend({
                     queryParams: {
                         currentPage: 'current_page'
@@ -27,7 +27,7 @@ define([
                     models.push(LearnerProfileHelpers.makeBadge(idx));
                 });
                 badge_list_object.results = models;
-                badgeCollection.fetch();
+                badgeCollection.setPage(pageNum);
                 var request = AjaxHelpers.currentRequest(requests);
                 var path = new URI(request.url).path();
                 expect(path).toBe('/api/badges/v1/assertions/user/staff/');
@@ -46,7 +46,7 @@ define([
 
             it('displays all badges', function () {
                 requests = AjaxHelpers.requests(this);
-                view = createView(requests, {
+                view = createView(requests, 1, {
                     count: 30,
                     previous: '/arbitrary/url',
                     num_pages: 3,
@@ -61,7 +61,7 @@ define([
 
             it('displays placeholder on last page', function () {
                 requests = AjaxHelpers.requests(this);
-                view = createView(requests, {
+                view = createView(requests, 3, {
                     count: 30,
                     previous: '/arbitrary/url',
                     num_pages: 3,
@@ -76,7 +76,7 @@ define([
 
             it('does not display placeholder on first page', function () {
                 requests = AjaxHelpers.requests(this);
-                view = createView(requests, {
+                view = createView(requests, 1, {
                     count: 30,
                     previous: '/arbitrary/url',
                     num_pages: 3,

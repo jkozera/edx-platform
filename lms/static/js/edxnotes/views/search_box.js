@@ -1,7 +1,12 @@
 ;(function (define, undefined) {
 'use strict';
 define([
-    'jquery', 'underscore', 'backbone', 'gettext', 'edx-ui-toolkit/js/utils/html-utils', 'js/edxnotes/utils/logger',
+    'jquery',
+    'underscore',
+    'backbone',
+    'gettext',
+    'edx-ui-toolkit/js/utils/html-utils',
+    'js/edxnotes/utils/logger',
     'js/edxnotes/collections/notes'
 ], function ($, _, Backbone, gettext, HtmlUtils, NotesLogger, NotesCollection) {
     var SearchBoxView = Backbone.View.extend({
@@ -15,7 +20,7 @@ define([
             return HtmlUtils.interpolateHtml(message, {
                 anchorStart: HtmlUtils.HTML('<a href="#search-notes-input">'),
                 anchorEnd: HtmlUtils.HTML('</a>')
-            }).text;
+            });
         }()),
 
         initialize: function (options) {

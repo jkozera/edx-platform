@@ -46,7 +46,7 @@
                 },
 
                 render: function () {
-                    HtmlUtils.setHtml(this.$el, HtmlUtils.HTML(teamsTemplate));
+                    HtmlUtils.setHtml(this.$el, HtmlUtils.template(teamsTemplate)({}));
                     this.$('p.error').hide();
                     this.header.setElement(this.$('.teams-header')).render();
                     if (this.instructorTools) {

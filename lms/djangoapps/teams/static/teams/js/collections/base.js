@@ -3,11 +3,6 @@
     define(['edx-ui-toolkit/js/pagination/paging-collection'],
         function(PagingCollection) {
             var BaseCollection = PagingCollection.extend({
-                queryParams: {
-                    totalPages: null,
-                    totalRecords: null
-                },
-
                 constructor: function (models, options) {
                     this.options = options;
                     this.url = options.url;
@@ -36,6 +31,18 @@
                 onUpdate: function(event) {
                     // Mark the collection as stale so that it knows to refresh when needed.
                     this.isStale = true;
+                },
+
+                sync: function (method, model, options) {
+                    // do not send total pages and total records in request
+                    if (method === 'read') {
+                        var params = _.values(_.pick(this.queryParams, ['totalPages', 'totalRecords']));
+                        _.each(params, function (param) {
+                            delete options.data[param];
+                        });
+                    }
+
+                    return PagingCollection.prototype.sync(method, model, options);
                 }
             });
             return BaseCollection;
