@@ -233,10 +233,15 @@
             OrderHistoryFieldView: FieldViews.ReadonlyFieldView.extend({
                 fieldType: 'orderHistory',
                 fieldTemplate: field_order_history_template,
+                events: {
+                    'mouseenter .u-field-orderHistory .u-field-order': 'showDetailsButton',
+                    'mouseleave .u-field-orderHistory .u-field-order': 'hideDetailsButton'
+                },
 
                 initialize: function (options) {
                     this.options = options;
                     this._super(options);
+                    _.bindAll(this, 'showDetailsButton', 'hideDetailsButton');
                 },
 
                 render: function () {
@@ -248,7 +253,16 @@
                         receipt_url: this.options.receipt_url,
                         valueAttribute: this.options.valueAttribute
                     }));
+                    this.delegateEvents();
                     return this;
+                },
+
+                showDetailsButton: function () {
+                    this.$el.find('.u-field-order-link .u-field-link').removeClass('hidden');
+                },
+
+                hideDetailsButton: function () {
+                    this.$el.find('.u-field-order-link .u-field-link').addClass('hidden');
                 }
             }),
         };

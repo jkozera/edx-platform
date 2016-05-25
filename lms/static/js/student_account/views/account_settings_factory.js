@@ -170,10 +170,10 @@
 
             ordersHistoryData.unshift(
                 {
-                    'title': 'ORDER NAME',
-                    'order_date': 'ORDER PLACED',
-                    'price': 'TOTAL',
-                    'number': 'INVOICE ID'
+                    'title': gettext('ORDER NAME'),
+                    'order_date': gettext('ORDER PLACED'),
+                    'price': gettext('TOTAL'),
+                    'number': gettext('INVOICE ID')
                 }
             );
 
@@ -182,7 +182,7 @@
                     title: gettext('Your Orders'),
                     subtitle: gettext(
                         'View details of our past purchases and, potentially request a refund for a past order. For ' +
-                        'more information on refund request eligibility'
+                        'more information on refund request eligibility, please read here.'
                     ),
                     fields: _.map(ordersHistoryData, function(order) {
                         orderNumber = order.number;
